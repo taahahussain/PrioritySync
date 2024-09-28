@@ -1,16 +1,17 @@
 
 
 // Importing required modules
+require('dotenv').config(); // Must be at the top of your file
 const express = require('express');
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const User = require('./models/user');
 
 // Creating an Express application instance
 const app = express();
 const PORT = 3000;
-const uri  = "mongodb+srv://taahahussain04:2MAinzG2MJQstAev@priortysyncdb.hlyso.mongodb.net/?retryWrites=true&w=majority&appName=PriortySyncDB"
-
+const uri  = process.env.MONGO_URI;
 // Connect to MongoDB database
 mongoose.connect(uri)
 .then(() => {
@@ -20,15 +21,8 @@ mongoose.connect(uri)
   console.error('Error connecting to MongoDB:', error);
 });
 
-// Define a schema for the User collection
-const userSchema = new mongoose.Schema({
-  username: String,
-  email: String,
-  password: String
-});
 
-// Create a User model based on the schema
-const User = mongoose.model('User', userSchema);
+
 
 // Middleware to parse JSON bodies
 app.use(express.json());
