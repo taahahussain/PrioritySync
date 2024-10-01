@@ -7,11 +7,16 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('./models/user');
+const Event = require('./models/event');
+const SchoolClass = require('./models/schoolWork');
+const { sortTasksByScore, findTimeSlotAndScheduleTask } = require('./utils/taskScheduler');
+
 
 // Creating an Express application instance
 const app = express();
 const PORT = 3000;
 const uri  = process.env.MONGO_URI;
+console.log(uri);
 // Connect to MongoDB database
 mongoose.connect(uri)
 .then(() => {
@@ -110,6 +115,32 @@ app.get('/api/user', verifyToken, async (req, res) => {
 app.get('/', (req, res) => {
   res.send('Welcome to my User Registration and Login API!');
 });
+
+// Route to create a new event and schedule all tasks
+app.post('/api/events', async (req, res) => {
+  try {
+    // Create the new event and save it to the database
+    const newEvent = new Event(req.body); 
+    const savedEvent = await newEvent.save(); 
+    console.log("New event created");
+
+    // Retrieve all events from the database, including the newly created one
+    const allEvents = await Event.find();
+
+    // Sort all events by urgency and due date using sortTasksByScore
+    const sortedEvents = sortTasksByScore(allEvents);
+
+    // Find available time slots and schedule all tasks
+    await findTimeSlotAndScheduleTask(sortedEvents);
+
+    // Send response
+    res.status(201).json({ message: "New event created and all tasks scheduled", event: savedEvent });
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+});
+
+  
 
 // Start the server
 app.listen(PORT, () => {

@@ -19,20 +19,14 @@ const eventSchema = new mongoose.Schema({
   estimatedTime: Number,
   category: {
     type: String,
-    enum: ['religious', 'school', 'work', 'personal', 'worship', 'other'],
+    enum: ['religious', 'school', 'work', 'personal', 'worship', 'other', 'projects'],
     required: true,
   },
   createdAt: {
     type: Date,
     default: Date.now,
   },
-  files: [
-    {
-      fileType: String,
-      fileUrl: String,
-    }
-  ], // Files (documents, videos, etc.)
-  links: [String], // Associated links (documents, shared drive, etc.)
+  
 });
 
 // Define a discriminator key for distinguishing between different event types
